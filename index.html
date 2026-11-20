@@ -40,4 +40,228 @@ main{max-width:1100px;margin:0 auto;padding:20px;display:grid;gap:24px}
 .board{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
 @media(max-width:900px){.board{grid-template-columns:1fr 1fr}}@media(max-width:520px){.board{grid-template-columns:1fr}}
 .col{background:var(--bg);border:1px dashed var(--line);border-radius:14px;padding:10px;display:grid;gap:10px;align-content:start;min-height:120px}
-.ticket{background:var(--surface);border:1px solid
+.ticket{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--gold);border-radius:10px;padding:10px;display:grid;gap:6px;font-size:.92rem}
+.stats{display:flex;gap:12px;flex-wrap:wrap}.stats .panel{flex:1;min-width:140px}.stats strong{font-size:1.7rem;font-family:"Bricolage Grotesque",sans-serif}
+.drawer{position:fixed;right:12px;top:calc(60px + env(safe-area-inset-top,0px));width:min(340px,92vw);max-height:60vh;overflow:auto;z-index:9}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;z-index:20;font-weight:500;max-width:92vw}
+.note{color:var(--mute);font-size:.85rem}[hidden]{display:none!important}
+footer{text-align:center;padding:16px}
+</style>
+</head>
+<body>
+<header>
+  <h1>CampusBites ☕</h1>
+  <div class="tabs" role="tablist"><button role="tab" id="t-s" aria-selected="true">Student</button><button role="tab" id="t-f" aria-selected="false">Staff</button></div>
+  <button class="bell" id="bell" aria-label="Notifications">🔔<b id="cnt" hidden>0</b></button>
+</header>
+<div class="panel drawer" id="drawer" hidden><h3>Notifications</h3><div id="notes"></div></div>
+<main id="app"></main>
+<footer class="note" id="mode"></footer>
+<div class="toast" id="toast" hidden></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+/* =====================================================================
+   CampusBites – Raghav's frontend (UI + WhatsApp + Staff dashboard)
+
+   How the 3 parts connect:
+     Vardan (AI)      -> checkStock(id)            [section 2]
+     Saksham (backend)-> GET /api/inventory/:id    [section 1, API.inventory]
+     Raghav (UI)      -> shows the result everywhere (menu badges,
+                         add-to-cart limits, staff stock checker)
+
+   Expected backend contract (Saksham):
+     GET   /api/menu                  -> [{id,n,p,e}]
+     GET   /api/inventory/:id         -> {item,qty}
+     GET   /api/orders                -> [{id,name,phone,items:[{id,n,p,q}],total,status}]  status 0..3
+     POST  /api/orders  {name,phone,items:[{id,q}]} -> order
+     PATCH /api/orders/:id {status}   -> order
+     POST  /api/inventory/:id/restock {qty} -> {item,qty}
+   If /api/menu is unreachable, the app runs on built-in mock data (demo mode).
+   ===================================================================== */
+
+// ---------- 1. API layer (Saksham's endpoints, with mock fallback) ----------
+const BASE="/api";
+let live=false;
+const MENU=[
+  {id:"samosa",n:"Samosa",p:15,e:"🥟"},{id:"sandwich",n:"Veg sandwich",p:40,e:"🥪"},
+  {id:"dosa",n:"Masala dosa",p:60,e:"🫓"},{id:"chai",n:"Masala chai",p:10,e:"🍵"},
+  {id:"coffee",n:"Cold coffee",p:50,e:"🧋"},{id:"maggi",n:"Maggi",p:35,e:"🍜"},
+  {id:"roll",n:"Paneer roll",p:70,e:"🌯"},{id:"fries",n:"French fries",p:45,e:"🍟"}];
+const mock={stock:{samosa:20,sandwich:8,dosa:12,chai:50,coffee:3,maggi:0,roll:9,fries:15},orders:[]};
+
+async function call(path,opts,fallback){
+  if(live){
+    try{
+      const r=await fetch(BASE+path,{headers:{"Content-Type":"application/json"},...opts});
+      if(!r.ok)throw new Error(r.status);
+      return await r.json();
+    }catch(e){ if(opts&&opts.method&&opts.method!=="GET")throw e; live=false; }
+  }
+  return fallback();
+}
+const API={
+  menu:()=>call("/menu",{},()=>MENU),
+  inventory:id=>call("/inventory/"+id,{},()=>({item:id,qty:mock.stock[id]??0})),
+  orders:()=>call("/orders",{},()=>mock.orders),
+  place:(items,name,phone)=>call("/orders",{method:"POST",body:JSON.stringify({name,phone,items:items.map(i=>({id:i.id,q:i.q}))})},()=>{
+    for(const i of items) if((mock.stock[i.id]??0)<i.q) throw new Error(i.n+" just sold out");
+    items.forEach(i=>mock.stock[i.id]-=i.q);
+    const o={id:101+mock.orders.length,name,phone,items,total:items.reduce((s,i)=>s+i.q*i.p,0),status:0};
+    mock.orders.push(o);return o;}),
+  advance:(id,status)=>call("/orders/"+id,{method:"PATCH",body:JSON.stringify({status})},()=>{
+    const o=mock.orders.find(x=>x.id===id);if(o)o.status=status;return o;}),
+  restock:id=>call("/inventory/"+id+"/restock",{method:"POST",body:JSON.stringify({qty:10})},()=>{
+    mock.stock[id]+=10;return{item:id,qty:mock.stock[id]};})
+};
+
+// ---------- 2. Vardan's AI hook ----------
+// checkStock("samosa") -> {id:"samosa", qty:20, status:"in_stock"|"low"|"out"}
+// Vardan can extend this (e.g. predict sell-out); the UI only relies on qty/status.
+async function checkStock(id){
+  const r=await API.inventory(id);
+  const qty=Number(r.qty)||0;
+  return {id,qty,status:qty===0?"out":qty<=5?"low":"in_stock"};
+}
+
+// ---------- 3. State & helpers ----------
+const STATUS=["Placed","Preparing","Ready","Picked up"];
+const CAFE_WA="916398984451"; // café's WhatsApp number (91 = India country code)
+const UPI_ID="6398984451@upi"; // café's UPI id for payments
+let view="s",cart={},menu=[],stock={},orders=[],notes=[],unread=0,me=null,lastStatus=null,sig="",name="",phone="";
+const $=s=>document.querySelector(s);
+const inr=n=>"₹"+n;
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const waNum=p=>{const d=String(p||"").replace(/\D/g,"");return d.length===10?"91"+d:d};
+
+function toast(t){const e=$("#toast");e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,2800)}
+function notify(t){notes.unshift(t);unread++;toast(t);bell();
+  try{if("Notification" in window&&Notification.permission==="granted"&&document.hidden)new Notification("CampusBites",{body:t})}catch(e){}}
+function bell(){$("#cnt").hidden=!unread;$("#cnt").textContent=unread;
+  $("#notes").innerHTML=notes.length?notes.map(n=>`<p class="note">• ${esc(n)}</p>`).join(""):'<p class="note">Nothing new yet.</p>'}
+function badge(q){return q===0?'<span class="badge out">Sold out</span>':q<=5?`<span class="badge low">Only ${q} left</span>`:'<span class="badge ok">In stock</span>'}
+function tracker(o){return `<div class="steps">${STATUS.map((s,i)=>`<span class="${i<=o.status?"on":""}">${s}</span>`).join("")}</div>`}
+
+// ---------- 4. WhatsApp ----------
+// Student -> café: send the order details
+function waToCafe(o){
+  const t=`Hi CampusBites! Order #${o.id} for ${o.name}: `+o.items.map(i=>i.q+"× "+i.n).join(", ")+`. Total ${inr(o.total)}.`;
+  return `https://wa.me/${CAFE_WA}?text=${encodeURIComponent(t)}`;
+}
+// Staff -> student: tell them their order is ready
+function waToStudent(o){
+  const t=`Hi ${o.name}, your CampusBites order #${o.id} is ready at the counter. 🎉`;
+  return `https://wa.me/${waNum(o.phone)}?text=${encodeURIComponent(t)}`;
+}
+
+// ---------- 4b. UPI payment (QR for the exact amount) ----------
+function upiLink(o){
+  return `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=CampusBites&am=${o.total}&cu=INR&tn=${encodeURIComponent("Order #"+o.id)}`;
+}
+function upiQr(o){
+  try{const q=qrcode(0,"M");q.addData(upiLink(o));q.make();return q.createSvgTag({cellSize:5,margin:2,scalable:true});}
+  catch(e){return "";}
+}
+function payBlock(o){
+  const qr=upiQr(o);
+  return `<div class="panel" style="background:var(--bg)"><h3>Pay ${inr(o.total)} by UPI</h3>
+    ${qr?`<div style="background:#fff;padding:8px;border-radius:12px;width:200px;max-width:100%;margin:auto">${qr}</div>`:'<p class="note">QR could not load. Use the button below.</p>'}
+    <p class="note" style="text-align:center">Scan with any UPI app (GPay, PhonePe, Paytm).<br>UPI ID: <strong>${esc(UPI_ID)}</strong></p>
+    <a class="btn alt" style="text-align:center;text-decoration:none" href="${upiLink(o)}">Open UPI app (phone)</a></div>`;
+}
+
+// ---------- 5. Student interface ----------
+function student(){
+  const lines=menu.filter(m=>cart[m.id]).map(m=>({...m,q:cart[m.id]})),total=lines.reduce((s,l)=>s+l.q*l.p,0);
+  const mine=me?orders.find(o=>o.id===me):null;
+  return `<div class="student"><section><h2 style="margin-bottom:12px">Today’s menu</h2><div class="menu">${menu.map(m=>{const q=stock[m.id]??0;
+    return `<div class="item"><div class="em">${m.e}</div><h3>${esc(m.n)}</h3><div class="row"><span class="p">${inr(m.p)}</span>${badge(q)}</div><button class="btn" data-add="${m.id}" ${q-(cart[m.id]||0)<=0?"disabled":""}>${q===0?"Sold out":"Add to order"}</button></div>`}).join("")}</div></section>
+  <aside style="display:grid;gap:14px"><div class="panel"><h2>Your order</h2>${lines.length
+    ?lines.map(l=>`<div class="row"><span>${esc(l.n)}</span><span class="qty"><button data-dec="${l.id}" aria-label="Remove one ${esc(l.n)}">−</button>${l.q}<button data-add="${l.id}" aria-label="Add one ${esc(l.n)}">+</button></span></div>`).join("")
+      +`<div class="row"><strong>Total</strong><strong>${inr(total)}</strong></div>
+      <input class="inp" id="nm" placeholder="Your name" value="${esc(name)}" autocomplete="name">
+      <input class="inp" id="ph" placeholder="WhatsApp number (optional)" inputmode="tel" value="${esc(phone)}">
+      <button class="btn" id="place">Place order</button>`
+    :'<p class="note">Your cart is empty. Add something from the menu.</p>'}</div>
+  ${mine?`<div class="panel"><h3>Order #${mine.id} · ${STATUS[mine.status]}</h3>${tracker(mine)}<p class="note">${mine.status===2?"Ready at the counter. Show your order number.":mine.status===3?"Enjoy your meal!":"We’ll notify you when the status changes."}</p><a class="btn wa" href="${waToCafe(mine)}" target="_blank" rel="noopener">Send order on WhatsApp</a></div>${mine.status<3?payBlock(mine):""}`:""}</aside></div>`;
+}
+
+// ---------- 6. Staff dashboard ----------
+function staff(){
+  const by=s=>orders.filter(o=>o.status===s),active=orders.filter(o=>o.status<3).length,rev=orders.reduce((s,o)=>s+o.total,0);
+  return `<div class="stats"><div class="panel"><span class="note">Active orders</span><strong>${active}</strong></div><div class="panel"><span class="note">Total orders</span><strong>${orders.length}</strong></div><div class="panel"><span class="note">Sales today</span><strong>${inr(rev)}</strong></div></div>
+  <h2>Order board</h2><div class="board">${STATUS.map((s,i)=>`<div class="col"><h3>${s} (${by(i).length})</h3>${by(i).map(o=>`<div class="ticket"><div class="row"><strong>#${o.id} ${esc(o.name)}</strong><span>${inr(o.total)}</span></div><div>${o.items.map(x=>x.q+"× "+esc(x.n)).join(", ")}</div><div class="note">Check ${inr(o.total)} received in UPI</div>${i<3?`<button class="btn" data-adv="${o.id}">Mark ${STATUS[i+1].toLowerCase()}</button>`:""}${i===2&&waNum(o.phone)?`<a class="btn wa" href="${waToStudent(o)}" target="_blank" rel="noopener">Message on WhatsApp</a>`:""}</div>`).join("")||'<p class="note">No orders here.</p>'}</div>`).join("")}</div>
+  <h2>Stock</h2>
+  <div class="panel"><div class="row"><input class="inp" id="chk" placeholder="Check stock, e.g. samosa" list="items"><button class="btn" id="chkbtn">Check</button></div><datalist id="items">${menu.map(m=>`<option value="${m.id}">`).join("")}</datalist><span class="note">Uses checkStock() → GET /api/inventory/:id</span></div>
+  <div class="menu">${menu.map(m=>`<div class="item"><div class="row"><strong>${m.e} ${esc(m.n)}</strong>${badge(stock[m.id]??0)}</div><div class="row"><span>${stock[m.id]??0} units</span><button class="btn alt" data-rs="${m.id}">Restock +10</button></div></div>`).join("")}</div>`;
+}
+
+// ---------- 7. Render, refresh & events ----------
+function render(){
+  $("#t-s").setAttribute("aria-selected",view==="s");$("#t-f").setAttribute("aria-selected",view==="f");
+  const f=document.activeElement&&document.activeElement.id,y=scrollY;
+  $("#app").innerHTML=view==="s"?student():staff();scrollTo(0,y);
+  if(f==="nm"||f==="ph"||f==="chk"){const el=document.getElementById(f);if(el){el.focus();el.setSelectionRange?.(el.value.length,el.value.length)}}
+  $("#mode").textContent=live?"● Connected to CampusBites server":"● Demo mode (no server found, using sample data)";
+}
+async function refresh(force){
+  try{
+    if(!menu.length)menu=await API.menu();
+    const st=await Promise.all(menu.map(m=>checkStock(m.id)));   // Vardan -> Saksham -> UI
+    stock=Object.fromEntries(st.map(s=>[s.id,s.qty]));
+    orders=await API.orders();
+    const mine=orders.find(o=>o.id===me);
+    if(mine&&mine.status!==lastStatus){
+      if(lastStatus!==null)notify(`Order #${mine.id} is now: ${STATUS[mine.status]}.`);
+      lastStatus=mine.status;
+    }
+    const s=JSON.stringify([stock,orders,live]);
+    if(force||s!==sig){sig=s;render()}
+  }catch(e){}
+}
+
+document.addEventListener("input",e=>{
+  if(e.target.id==="nm")name=e.target.value;
+  if(e.target.id==="ph")phone=e.target.value;
+});
+document.addEventListener("click",async e=>{
+  const t=e.target.closest("button");if(!t)return;
+  try{
+    if(t.id==="t-s"||t.id==="t-f"){view=t.id==="t-s"?"s":"f";await refresh(true);return}
+    if(t.id==="bell"){const d=$("#drawer");d.hidden=!d.hidden;unread=0;bell();return}
+    if(t.dataset.add){
+      const id=t.dataset.add,r=await checkStock(id);
+      if((cart[id]||0)<r.qty)cart[id]=(cart[id]||0)+1;else toast("No more "+id+" in stock");
+      render();
+    }else if(t.dataset.dec){
+      const id=t.dataset.dec;if(--cart[id]<=0)delete cart[id];render();
+    }else if(t.id==="place"){
+      const items=menu.filter(m=>cart[m.id]).map(m=>({...m,q:cart[m.id]}));
+      const o=await API.place(items,name.trim()||"Guest",phone.trim());
+      me=o.id;lastStatus=o.status;cart={};
+      if("Notification" in window&&Notification.permission==="default")Notification.requestPermission();
+      notify(`Order #${o.id} placed. Total ${inr(o.total)}.`);await refresh(true);
+    }else if(t.dataset.adv){
+      const id=+t.dataset.adv,o=orders.find(x=>x.id===id);
+      await API.advance(id,o.status+1);toast(`Order #${id} → ${STATUS[o.status+1]}`);await refresh(true);
+    }else if(t.dataset.rs){
+      await API.restock(t.dataset.rs);toast("Stock updated");await refresh(true);
+    }else if(t.id==="chkbtn"){
+      const q=$("#chk").value.trim().toLowerCase(),m=menu.find(x=>x.id===q||x.n.toLowerCase()===q);
+      if(!m){toast("Item not found");return}
+      const r=await checkStock(m.id);
+      toast(`${m.n}: ${r.qty} left (${r.status.replace("_"," ")})`);
+    }
+  }catch(err){toast(err.message||"Something went wrong. Try again.");await refresh(true)}
+});
+
+(async function init(){
+  try{
+    const c=new AbortController(),tm=setTimeout(()=>c.abort(),1500);
+    const r=await fetch(BASE+"/menu",{signal:c.signal});clearTimeout(tm);live=r.ok;
+  }catch(e){live=false}
+  bell();await refresh(true);
+  setInterval(refresh,4000); // keeps stock, orders and notifications live
+})();
+</script>
+</body>
+</html>
