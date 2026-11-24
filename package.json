@@ -4,11 +4,6 @@
   "private": true,
   "description": "Campus Bites café ordering app with Express backend, persistent JSON storage and 2-3-4 order index",
   "main": "server.js",
-  "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js"
-  },
-  "dependencies": {
-    "express": "^4.21.2"
-  }
+  "scripts": {"start":"node server.js","dev":"node --watch server.js"},
+  "dependencies": {"express":"^4.21.2"}
 }

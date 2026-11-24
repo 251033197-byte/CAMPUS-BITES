@@ -1,14 +1,5 @@
 {
-  "stock": {
-    "samosa": 20,
-    "sandwich": 8,
-    "dosa": 12,
-    "chai": 50,
-    "coffee": 3,
-    "maggi": 0,
-    "roll": 9,
-    "fries": 15
-  },
-  "orders": [],
-  "nextOrderId": 101
+  "stock":{"samosa":20,"sandwich":8,"dosa":12,"chai":50,"coffee":3,"maggi":0,"roll":9,"fries":15},
+  "orders":[],
+  "nextOrderId":101
 }
