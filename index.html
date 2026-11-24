@@ -1,196 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Campus Bites – Café ordering</title>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
-<style>
-:root{color-scheme:dark;--bg:#0a0a0a;--surface:#161616;--ink:#f5efe0;--mute:#a89f88;--line:#332d1c;--brand:#d4af37;--brand-ink:#0a0a0a;--gold:#f2c14e;--ok:#4cd39a;--warn:#ffb84d;--bad:#ff7a7a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 "DM Sans",system-ui,sans-serif}
-h1,h2,h3{font-family:"Bricolage Grotesque","DM Sans",sans-serif;margin:0;letter-spacing:-.01em}
-button{font:inherit;cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-header{display:flex;align-items:center;gap:12px;padding:14px 20px;background:#000;color:var(--gold);border-bottom:2px solid var(--gold);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
-header h1{font-size:clamp(1.15rem,4.5vw,1.6rem);font-weight:800;flex:1;white-space:nowrap}
-.tabs{display:flex;gap:4px;background:rgba(242,193,78,.15);padding:4px;border-radius:999px}
-.tabs button{border:0;background:none;color:inherit;padding:6px 16px;border-radius:999px;font-weight:700}
-.tabs button[aria-selected=true]{background:var(--gold);color:#0a0a0a}
-.bell{position:relative;border:0;background:none;color:inherit;font-size:1.3rem;padding:4px 8px}
-.bell b{position:absolute;top:-2px;right:-2px;background:var(--bad);color:#fff;font-size:.7rem;border-radius:999px;padding:0 6px}
-main{max-width:1100px;margin:0 auto;padding:20px;display:grid;gap:24px}
-.student{grid-template-columns:1fr 340px;align-items:start}
-@media(max-width:820px){.student{grid-template-columns:1fr}}
-.menu{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
-.item{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:6px}
-.item .em{font-size:2rem}.item .p{font-weight:700}
-.badge{font-size:.8rem;font-weight:700;padding:2px 10px;border-radius:999px;width:max-content;border:1px solid currentColor}
-.ok{color:var(--ok)}.low{color:var(--warn)}.out{color:var(--bad)}
-.btn{border:0;background:var(--brand);color:var(--brand-ink);font-weight:700;padding:9px 14px;border-radius:10px}
-.btn:disabled{opacity:.45;cursor:not-allowed}
-.btn.alt{background:transparent;color:var(--brand);border:1.5px solid var(--brand)}
-.btn.wa{background:#1fa855;color:#fff;text-decoration:none;display:inline-block;text-align:center}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:grid;gap:10px}
-.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.qty{display:flex;align-items:center;gap:8px}.qty button{width:28px;height:28px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
-.steps{display:flex;gap:0;margin:6px 0}
-.steps span{flex:1;text-align:center;font-size:.78rem;color:var(--mute);border-top:4px solid var(--line);padding-top:4px}
-.steps span.on{border-color:var(--ok);color:var(--ink);font-weight:700}
-.board{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-@media(max-width:900px){.board{grid-template-columns:1fr 1fr}}@media(max-width:520px){.board{grid-template-columns:1fr}}
-.col{background:var(--bg);border:1px dashed var(--line);border-radius:14px;padding:10px;display:grid;gap:10px;align-content:start;min-height:120px}
-.ticket{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--gold);border-radius:10px;padding:10px;display:grid;gap:6px;font-size:.92rem}
-.stats{display:flex;gap:12px;flex-wrap:wrap}.stats .panel{flex:1;min-width:140px}.stats strong{font-size:1.7rem;font-family:"Bricolage Grotesque",sans-serif}
-.drawer{position:fixed;right:12px;top:calc(60px + env(safe-area-inset-top,0px));width:min(340px,92vw);max-height:60vh;overflow:auto;z-index:9}
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;z-index:20;font-weight:500;max-width:92vw}
-.note{color:var(--mute);font-size:.85rem}[hidden]{display:none!important}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Campus Bites</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root{color-scheme:dark;--bg:#0a0a0a;--surface:#161616;--ink:#f5efe0;--mute:#a89f88;--line:#332d1c;--gold:#f2c14e;--ok:#4cd39a;--warn:#ffb84d;--bad:#ff7a7a}
+    *{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 "DM Sans",system-ui,sans-serif}h1,h2,h3{font-family:"Bricolage Grotesque",sans-serif;margin:0}button,input,select{font:inherit}button{cursor:pointer}
+    header{display:flex;align-items:center;gap:12px;padding:14px 20px;background:#000;color:var(--gold);border-bottom:2px solid var(--gold);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}header h1{font-size:clamp(1.15rem,4.5vw,1.6rem);flex:1}.tabs{display:flex;gap:4px;background:#332b16;padding:4px;border-radius:999px}.tabs button{border:0;background:none;color:inherit;padding:6px 14px;border-radius:999px;font-weight:700}.tabs button[aria-selected=true]{background:var(--gold);color:#000}
+    main{max-width:1100px;margin:auto;padding:20px;display:grid;gap:24px}.student{grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start}.menu{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}.item,.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:10px}.row{display:flex;justify-content:space-between;align-items:center;gap:8px}.btn{border:0;background:var(--gold);color:#090909;font-weight:700;padding:9px 14px;border-radius:10px}.btn.alt{background:transparent;color:var(--gold);border:1.5px solid var(--gold)}.btn.wa{background:#1fa855;color:#fff;text-decoration:none;text-align:center}.btn:disabled{opacity:.45;cursor:not-allowed}
+    input,select{width:100%;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}.qty{display:flex;align-items:center;gap:8px}.qty button{width:28px;height:28px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}.badge{font-size:.8rem;font-weight:700;padding:2px 10px;border-radius:999px;border:1px solid currentColor}.ok{color:var(--ok)}.low{color:var(--warn)}.out{color:var(--bad)}.note{color:var(--mute);font-size:.85rem}
+    .steps{display:flex}.steps span{flex:1;text-align:center;font-size:.75rem;color:var(--mute);border-top:4px solid var(--line);padding-top:4px}.steps span.on{border-color:var(--ok);color:var(--ink);font-weight:700}.board{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.col{background:var(--bg);border:1px dashed var(--line);border-radius:14px;padding:10px;display:grid;gap:10px}.ticket{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--gold);border-radius:10px;padding:10px}.stats{display:flex;gap:12px;flex-wrap:wrap}.stats .panel{flex:1;min-width:140px}.stats strong{font-size:1.7rem}.qr{width:220px;max-width:100%;height:auto;border-radius:10px;background:#fff;padding:8px}.drawer{position:fixed;right:12px;top:70px;width:min(340px,92vw);max-height:60vh;overflow:auto}.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;z-index:20}[hidden]{display:none!important}
+    @media(max-width:820px){.student{grid-template-columns:1fr}.board{grid-template-columns:1fr 1fr}}@media(max-width:520px){header{flex-wrap:wrap}.tabs{flex:1}.board{grid-template-columns:1fr}main{padding:14px}}
+  </style>
 </head>
 <body>
-<header>
-  <h1>Campus Bites ☕</h1>
-  <div class="tabs" role="tablist"><button role="tab" id="t-s" aria-selected="true">Student</button><button role="tab" id="t-f" aria-selected="false">Staff</button><button role="tab" id="t-w" aria-selected="false">Bot</button></div>
-  <button class="bell" id="bell" aria-label="Notifications">🔔<b id="cnt" hidden>0</b></button>
-</header>
+<header><h1>Campus Bites ☕</h1><div class="tabs" role="tablist"><button role="tab" id="t-s" aria-selected="true">Student</button><button role="tab" id="t-f" aria-selected="false">Staff</button><button role="tab" id="t-w" aria-selected="false">Bot</button></div><button class="bell" id="bell" aria-label="Notifications">🔔</button></header>
 <div class="panel drawer" id="drawer" hidden><h3>Notifications</h3><div id="notes"></div></div>
-<main id="app"></main>
+<main id="app"><div class="panel">Loading Campus Bites…</div></main>
 <div class="toast" id="toast" hidden></div>
 <script>
-// ---- API layer: Vardan's checkStock() -> Saksham's GET /api/inventory/:id -> Raghav's UI ----
-// Mock backend; swap each body with fetch('/api/...') when the real server is ready.
-const DB={stock:{samosa:20,sandwich:8,dosa:12,chai:50,coffee:3,maggi:0,roll:9,fries:15},orders:[]};
-const API={
-  menu:()=>[
-    {id:"samosa",n:"Samosa",p:15,e:"🥟"},{id:"sandwich",n:"Veg sandwich",p:40,e:"🥪"},
-    {id:"dosa",n:"Masala dosa",p:60,e:"🫓"},{id:"chai",n:"Masala chai",p:10,e:"🍵"},
-    {id:"coffee",n:"Cold coffee",p:50,e:"🧋"},{id:"maggi",n:"Maggi",p:35,e:"🍜"},
-    {id:"roll",n:"Paneer roll",p:70,e:"🌯"},{id:"fries",n:"French fries",p:45,e:"🍟"}],
-  inventory:id=>new Promise(r=>setTimeout(()=>r({item:id,qty:DB.stock[id]}),0)), // GET /api/inventory/:id
-  place:(items,name)=>{items.forEach(i=>DB.stock[i.id]-=i.q);
-    const o={id:101+DB.orders.length,name,items,total:items.reduce((s,i)=>s+i.q*i.p,0),status:0};
-    DB.orders.push(o);return o;}, // POST /api/orders
-  advance:id=>{const o=DB.orders.find(x=>x.id===id);if(o&&o.status<3)o.status++;return o;} // PATCH /api/orders/:id
-};
 const STATUS=["Placed","Preparing","Ready","Picked up"];
-const CAFE_WA="919800000000"; // replace with the café's WhatsApp number
-let chat=[{from:"bot",text:"Hi! 👋 I am the Campus Bites WhatsApp bot. Send menu to start, or tap a button below."}],view="s",cart={},notes=[],unread=0,me=null,aiText="",aiRes=null,aiBusy=false,aiSum="",sumBusy=false;
-const $=s=>document.querySelector(s),M=API.menu();
-const inr=n=>"₹"+n;
+const CAFE_WA="916398984451";
+const UPI_ID="6398984451@upi";
+let M=[],stock={},orders=[],cart={},notes=[],view="s",me=null,chat=[{from:"bot",text:"Hi! 👋 Welcome to Campus Bites. Send 'menu' to begin."}],customer={name:"",gender:"",hostel:"",room:""};
+const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])),inr=n=>"₹"+Number(n||0).toFixed(2);
+async function request(url,options={}){const r=await fetch(url,{headers:{"Content-Type":"application/json"},...options});const d=await r.json().catch(()=>({error:"Unexpected server response"}));if(!r.ok)throw new Error(d.error||"Request failed");return d}
+async function load(){const d=await request("/api/bootstrap");M=d.menu||[];stock=d.stock||{};orders=d.orders||[]}
 function toast(t){const e=$("#toast");e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,2600)}
-function notify(t){notes.unshift(t);unread++;toast(t);bell()}
-function bell(){$("#cnt").hidden=!unread;$("#cnt").textContent=unread;$("#notes").innerHTML=notes.length?notes.map(n=>`<p class="note">• ${n}</p>`).join(""):'<p class="note">Nothing new yet.</p>'}
-function badge(q){return q===0?'<span class="badge out">Sold out</span>':q<=5?`<span class="badge low">Only ${q} left</span>`:`<span class="badge ok">In stock</span>`}
+function notify(t){notes.unshift(t);toast(t);$("#notes").innerHTML=notes.map(n=>`<p class="note">• ${esc(n)}</p>`).join("")||'<p class="note">Nothing new yet.</p>'}
+function badge(q){return q===0?' <span class="badge out">Sold out</span>':q<=5?` <span class="badge low">Only ${q} left</span>`:' <span class="badge ok">In stock</span>'}
 function tracker(o){return `<div class="steps">${STATUS.map((s,i)=>`<span class="${i<=o.status?"on":""}">${s}</span>`).join("")}</div>`}
-function waLink(o){const t=`Hi Campus Bites! Order #${o.id} for ${o.name}: `+o.items.map(i=>i.q+"× "+i.n).join(", ")+`. Total ${inr(o.total)}.`;return `https://wa.me/${CAFE_WA}?text=${encodeURIComponent(t)}`}
-
+function receiptText(o){return `Campus Bites - Order Confirmation%0A%0AOrder #%0A${o.id}%0ACustomer: ${customer.name}%0AGender: ${customer.gender}%0AHostel: ${customer.hostel}%0ARoom: ${customer.room}%0A%0AItems:%0A${o.items.map(i=>`- ${i.q} x ${i.n} - ${inr(i.q*i.p)}`).join("%0A")}%0A%0ATotal: ${inr(o.total)}%0APayment UPI: ${UPI_ID}%0AStatus: ${STATUS[o.status]}`}
+function whatsappLink(o){return `https://wa.me/${CAFE_WA}?text=${receiptText(o)}`}
 function student(){
-  const lines=M.filter(m=>cart[m.id]).map(m=>({...m,q:cart[m.id]})),total=lines.reduce((s,l)=>s+l.q*l.p,0);
-  const mine=me?DB.orders.find(o=>o.id===me):null;
-  return `<div class="student" style="display:grid"><section>${aiPanel()}<h2 style="margin-bottom:12px">Today’s menu</h2><div class="menu">${M.map(m=>{const q=DB.stock[m.id];return `<div class="item"><div class="em">${m.e}</div><h3>${m.n}</h3><div class="row"><span class="p">${inr(m.p)}</span>${badge(q)}</div><button class="btn" data-add="${m.id}" ${q-(cart[m.id]||0)<=0?"disabled":""}>Add to order</button></div>`}).join("")}</div></section>
-  <aside style="display:grid;gap:14px"><div class="panel"><h2>Your order</h2>${lines.length?lines.map(l=>`<div class="row"><span>${l.n}</span><span class="qty"><button data-dec="${l.id}" aria-label="Remove one ${l.n}">−</button>${l.q}<button data-add="${l.id}" aria-label="Add one ${l.n}">+</button></span></div>`).join("")+`<div class="row"><strong>Total</strong><strong>${inr(total)}</strong></div><input id="nm" placeholder="Your name" value="Raghav" style="padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)"><button class="btn" id="place">Place order</button>`:'<p class="note">Your cart is empty. Add something from the menu.</p>'}</div>
-  ${mine?`<div class="panel"><h3>Order #${mine.id} · ${STATUS[mine.status]}</h3>${tracker(mine)}<p class="note">${mine.status===2?"Ready at the counter. Show your order number.":"We’ll notify you when the status changes."}</p><a class="btn wa" href="${waLink(mine)}" target="_blank" rel="noopener">Send order on WhatsApp</a></div>`:""}</aside></div>`}
-
-function staff(){
-  const by=s=>DB.orders.filter(o=>o.status===s),active=DB.orders.filter(o=>o.status<3).length,rev=DB.orders.reduce((s,o)=>s+o.total,0);
-  return `<div class="stats"><div class="panel"><span class="note">Active orders</span><strong>${active}</strong></div><div class="panel"><span class="note">Total orders</span><strong>${DB.orders.length}</strong></div><div class="panel"><span class="note">Sales today</span><strong>${inr(rev)}</strong></div></div>
-  ${staffAI()}<h2>Order board</h2><div class="board">${STATUS.map((s,i)=>`<div class="col"><h3>${s} (${by(i).length})</h3>${by(i).map(o=>`<div class="ticket"><div class="row"><strong>#${o.id} ${o.name}</strong><span>${inr(o.total)}</span></div><div>${o.items.map(x=>x.q+"× "+x.n).join(", ")}</div>${i<3?`<button class="btn" data-adv="${o.id}">Mark ${STATUS[i+1].toLowerCase()}</button>`:""}</div>`).join("")||'<p class="note">No orders here.</p>'}</div>`).join("")}</div>
-  <h2>Stock</h2><div class="menu">${M.map(m=>`<div class="item"><div class="row"><strong>${m.e} ${m.n}</strong>${badge(DB.stock[m.id])}</div><div class="row"><span>${DB.stock[m.id]} units</span><button class="btn alt" data-rs="${m.id}">Restock +10</button></div></div>`).join("")}</div>`}
-
-// ---- AI features ----
-const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const mi=id=>M.find(m=>m.id===id);
-function clean(r,src){
-  const items=(Array.isArray(r&&r.items)?r.items:[]).map(i=>({id:i.id,q:Math.min(Math.floor(+i.q)||1,DB.stock[i.id]||0)})).filter(i=>mi(i.id)&&i.q>0);
-  return {message:String((r&&r.message)||"Here is what I suggest.").slice(0,220),items,src};
+ const lines=M.filter(m=>cart[m.id]).map(m=>({...m,q:cart[m.id]})),total=lines.reduce((s,l)=>s+l.q*l.p,0),mine=orders.find(o=>o.id===me);
+ const upiUrl=`upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent("Campus Bites")}&am=${encodeURIComponent(total)}&cu=INR`;
+ const qrUrl=`https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(upiUrl)}`;
+ return `<div class="student" style="display:grid"><section><h2 style="margin-bottom:12px">Today's menu</h2><div class="menu">${M.map(m=>{const q=stock[m.id]||0;return `<article class="item"><h3>${esc(m.e||"🍽️")} ${esc(m.n)}</h3><div class="row"><strong>${inr(m.p)}</strong>${badge(q)}</div><button class="btn" data-add="${esc(m.id)}" ${q-(cart[m.id]||0)<=0?"disabled":""}>Add</button></article>`}).join("")}</div></section>
+ <aside style="display:grid;gap:14px"><div class="panel"><h2>Your details</h2><label>Name<input id="custName" value="${esc(customer.name)}" placeholder="Student name"></label><label>Gender<select id="custGender"><option value="">Select gender</option>${["Male","Female","Other","Prefer not to say"].map(x=>`<option${customer.gender===x?" selected":""}>${x}</option>`).join("")}</select></label><label>Hostel number<input id="custHostel" value="${esc(customer.hostel)}" placeholder="e.g. Hostel 3"></label><label>Room number<input id="custRoom" value="${esc(customer.room)}" placeholder="e.g. 214"></label></div>
+ <div class="panel"><h2>Your order</h2>${lines.length?lines.map(l=>`<div class="row"><span>${esc(l.n)}</span><span class="qty"><button data-dec="${esc(l.id)}">−</button>${l.q}<button data-add="${esc(l.id)}" ${(stock[l.id]||0)<=l.q?"disabled":""}>+</button></span></div>`).join("")+'<div class="row"><strong>Total</strong><strong>'+inr(total)+'</strong></div><button class="btn" id="place">Place order</button><div style="text-align:center"><p class="note">Pay with UPI</p><img class="qr" src="'+qrUrl+'" alt="UPI QR code for '+UPI_ID+'"><p class="note"><strong>UPI ID:</strong> '+UPI_ID+'</p></div>':'<p class="note">Your cart is empty.</p>'}</div>
+ ${mine?`<div class="panel"><h3>Order #${mine.id} · ${STATUS[mine.status]}</h3>${tracker(mine)}<a class="btn wa" href="${whatsappLink(mine)}" target="_blank" rel="noopener">Send receipt on WhatsApp</a></div>`:""}</aside></div>`
 }
-// Fallback when Claude is not available (e.g. on GitHub Pages): keyword matching + budget trimming
-function localAI(t){
-  t=t.toLowerCase();
-  const hint={tea:"chai",cold:"coffee",spicy:"maggi",noodle:"maggi",paneer:"roll",wrap:"roll",hungry:"dosa",heavy:"dosa",snack:"samosa",light:"samosa",crispy:"fries"},w={one:1,two:2,three:3,four:4},sel={};
-  M.forEach(m=>{if(t.includes(m.id))sel[m.id]=1});
-  Object.keys(hint).forEach(k=>{if(t.includes(k)&&!sel[hint[k]])sel[hint[k]]=1});
-  Object.keys(sel).forEach(id=>{const r=t.match(new RegExp("([0-9]+|one|two|three|four)[ x×]*(?:[a-z]+ )?"+id));if(r)sel[id]=+r[1]||w[r[1]]});
-  let items=Object.keys(sel).map(id=>({id,q:sel[id]}));
-  if(!items.length)items=[{id:"samosa",q:1},{id:"chai",q:1}];
-  items=items.filter(i=>DB.stock[i.id]>0);
-  const b=t.match(/(?:under|below|within|budget|₹|rs)[ .]*([0-9]+)/),tot=()=>items.reduce((s,i)=>s+i.q*mi(i.id).p,0);
-  if(b)while(items.length>1&&tot()>+b[1]){items.sort((x,y)=>mi(y.id).p-mi(x.id).p);items.shift()}
-  return clean({message:items.length?"Here is a quick pick based on what you wrote.":"Sorry, those items are sold out right now.",items},"smart matching");
-}
-async function askAI(text){
-  const menu=M.map(m=>({id:m.id,name:m.n,price:m.p,left:DB.stock[m.id]}));
-  try{
-    const sample=await claude.use("sample");if(!sample)throw 0;
-    const r=await sample.json("You are the ordering assistant of a college café app. Menu with stock: "+JSON.stringify(menu)+". The student wrote: "+JSON.stringify(text)+". Pick items that are in stock and fit the request and any budget. Reply with JSON only, in this shape: {\"message\":\"one friendly sentence\",\"items\":[{\"id\":\"samosa\",\"q\":2}]}. Use only ids from the menu.",{modelTier:"quick",cache:false});
-    return clean(r,"Claude AI");
-  }catch(e){return localAI(text)}
-}
-function demand(){const d={};DB.orders.forEach(o=>o.items.forEach(i=>d[i.id]=(d[i.id]||0)+i.q));return d}
-function aiPanel(){
-  const r=aiRes;
-  return `<div class="panel" style="margin-bottom:16px;border-color:var(--gold)"><h3>✨ Ask Campus Bites AI</h3>
-  <div class="row"><input id="ai" value="${esc(aiText)}" placeholder="e.g. 2 samosa and chai, or something spicy under ₹100" style="flex:1;min-width:0;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)"><button class="btn" id="aiGo" ${aiBusy?"disabled":""}>${aiBusy?"Thinking…":"Suggest"}</button></div>
-  ${r?`<p>${esc(r.message)}</p>${r.items.length?`<p class="note">${r.items.map(i=>i.q+"× "+mi(i.id).n).join(", ")} · ${inr(r.items.reduce((s,i)=>s+i.q*mi(i.id).p,0))} · by ${r.src}</p><button class="btn alt" id="aiAdd">Add all to cart</button>`:""}`:""}</div>`;
-}
-function staffAI(){
-  const d=demand(),fl=M.filter(m=>DB.stock[m.id]<=5||(d[m.id]||0)>=DB.stock[m.id]).sort((a,b)=>DB.stock[a.id]-DB.stock[b.id]).slice(0,4);
-  const top=M.slice().sort((a,b)=>(d[b.id]||0)-(d[a.id]||0))[0];
-  return `<div class="panel" style="border-color:var(--gold)"><h3>✨ AI insights</h3>
-  ${fl.length?fl.map(m=>`<div class="row"><span>${m.e} ${m.n}: ${DB.stock[m.id]} left${d[m.id]?`, ${d[m.id]} ordered`:""}</span><strong>Restock ${Math.max(10,(d[m.id]||0)*2)}</strong></div>`).join(""):'<p class="note">Stock looks healthy.</p>'}
-  ${d[top.id]?`<p class="note">Top seller so far: ${top.n} (${d[top.id]}).</p>`:""}
-  <button class="btn alt" id="sumGo" ${sumBusy?"disabled":""}>${sumBusy?"Thinking…":"Ask Claude for a summary"}</button>${aiSum?`<p>${esc(aiSum)}</p>`:""}</div>`;
-}
-document.addEventListener("input",e=>{if(e.target.id==="ai")aiText=e.target.value});
-document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="ai"){const b=$("#aiGo");if(b&&!b.disabled)b.click()}});
-
-// ---- WhatsApp bot demo (same logic as whatsapp-bot/bot.js, running on the page's data) ----
-function botReply(t){
-  const l=t.toLowerCase().trim(),W={one:1,two:2,three:3,four:4};
-  const menuTxt="☕ Campus Bites menu\n"+M.map(m=>m.e+" "+m.n+" "+inr(m.p)+(DB.stock[m.id]?" ("+DB.stock[m.id]+" left)":" (sold out)")).join("\n")+"\n\nOrder like this: 2 samosa and 1 chai";
-  if(/^(hi|hello|hey|menu|start)/.test(l))return "Hi! 👋 Welcome to Campus Bites.\n\n"+menuTxt;
-  if(l.startsWith("help"))return "You can send:\n• menu\n• stock samosa\n• 2 samosa and 1 chai\n• status";
-  if(l.startsWith("stock")){const m=M.find(x=>l.includes(x.id));return m?m.e+" "+m.n+": "+(DB.stock[m.id]?DB.stock[m.id]+" left":"sold out"):"Tell me the item, for example: stock samosa"}
-  if(l.startsWith("status")){const o=[...DB.orders].reverse().find(x=>x.wa);return o?"Order #"+o.id+" is: "+STATUS[o.status]+" ("+inr(o.total)+")":"You have no orders yet. Send menu to start."}
-  const items=[];
-  M.forEach(m=>{if(l.includes(m.id)){const r=l.match(new RegExp("([0-9]+|one|two|three|four)[ x×]*(?:[a-z]+ )?"+m.id));items.push({...m,q:r?(+r[1]||W[r[1]]):1})}});
-  if(!items.length)return "Sorry, I did not understand. Send menu to see items, or help for commands.";
-  const bad=items.find(i=>i.q>DB.stock[i.id]);
-  if(bad)return DB.stock[bad.id]?"Only "+DB.stock[bad.id]+" "+bad.n+" left. Please send a smaller quantity.":bad.n+" is sold out right now.";
-  const o=API.place(items,"WhatsApp");o.wa=true;notify("New WhatsApp order #"+o.id);
-  return "✅ Order #"+o.id+" placed!\n"+items.map(i=>i.q+"× "+i.n).join("\n")+"\nTotal: "+inr(o.total)+"\nWe will message you when it is ready.";
-}
-function chatSend(text){chat.push({from:"me",text});chat.push({from:"bot",text:botReply(text)});render()}
-function botView(){
-  const inp="flex:1;min-width:0;padding:9px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)";
-  return `<div style="max-width:460px;margin:0 auto;width:100%;display:grid;gap:10px"><div class="panel" style="padding:0;overflow:hidden;gap:0">
-  <div style="background:#075e54;color:#fff;padding:10px 14px;font-weight:700">Campus Bites 🟢 <span style="font-weight:400;font-size:.8rem">WhatsApp bot demo</span></div>
-  <div id="chat" style="height:380px;overflow:auto;padding:12px;display:grid;gap:8px;align-content:start;background:#0b141a">${chat.map(m=>`<div style="justify-self:${m.from==="me"?"end":"start"};max-width:85%;padding:8px 12px;border-radius:12px;white-space:pre-wrap;background:${m.from==="me"?"#005c4b":"#202c33"};color:#e9edef">${esc(m.text)}</div>`).join("")}</div>
-  <div style="padding:8px;display:flex;gap:6px;flex-wrap:wrap">${["Menu","Stock samosa","2 samosa and 1 chai","Status"].map(c=>`<button class="btn alt" data-chip="${c}" style="padding:4px 10px;font-size:.85rem">${c}</button>`).join("")}</div>
-  <div class="row" style="padding:8px"><input id="bi" placeholder="Type a message" style="${inp}"><button class="btn wa" id="botSend">Send</button></div></div>
-  <p class="note">Orders placed here appear on the Staff board. When staff mark an order, the bot messages you back here.</p></div>`;
-}
-document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="bi"){const v=e.target.value.trim();if(v)chatSend(v)}});
-
-function render(){
-  $("#t-s").setAttribute("aria-selected",view==="s");$("#t-f").setAttribute("aria-selected",view==="f");$("#t-w").setAttribute("aria-selected",view==="w");
-  const y=scrollY;$("#app").innerHTML=view==="s"?student():view==="f"?staff():botView();scrollTo(0,y);const c=$("#chat");if(c)c.scrollTop=c.scrollHeight;
-}
-document.addEventListener("click",async e=>{
-  const t=e.target.closest("button");if(!t)return;
-  if(t.id==="t-s"||t.id==="t-f"||t.id==="t-w"){view=t.id==="t-s"?"s":t.id==="t-f"?"f":"w";render();return}
-  if(t.dataset.chip){chatSend(t.dataset.chip);return}
-  if(t.id==="botSend"){const i=$("#bi");if(i.value.trim())chatSend(i.value.trim());return}
-  if(t.id==="bell"){const d=$("#drawer");d.hidden=!d.hidden;unread=0;bell();return}
-  if(t.id==="aiGo"){aiText=$("#ai").value.trim();if(!aiText){toast("Type what you feel like eating");return}aiBusy=true;render();aiRes=await askAI(aiText);aiBusy=false;render();return}
-  if(t.id==="aiAdd"&&aiRes){aiRes.items.forEach(i=>cart[i.id]=Math.min((cart[i.id]||0)+i.q,DB.stock[i.id]));toast("Added to your cart");render();return}
-  if(t.id==="sumGo"){sumBusy=true;render();try{const sample=await claude.use("sample");if(!sample)throw 0;const r=await sample("You advise a college café manager. Stock left per item: "+JSON.stringify(DB.stock)+". Units ordered so far: "+JSON.stringify(demand())+". In 3 short sentences say what to restock first and any pattern you notice. Plain text only.",{modelTier:"quick",cache:false});aiSum=r.text}catch(x){aiSum="Claude summaries work in the Claude-hosted version. The local insights above still apply."}sumBusy=false;render();return}
-  if(t.dataset.add){const id=t.dataset.add,r=await API.inventory(id);if((cart[id]||0)<r.qty)cart[id]=(cart[id]||0)+1;else toast("No more "+id+" in stock");render()}
-  else if(t.dataset.dec){const id=t.dataset.dec;if(--cart[id]<=0)delete cart[id];render()}
-  else if(t.id==="place"){const items=M.filter(m=>cart[m.id]).map(m=>({...m,q:cart[m.id]}));const o=API.place(items,$("#nm").value||"Guest");me=o.id;cart={};notify(`Order #${o.id} placed. Total ${inr(o.total)}.`);render()}
-  else if(t.dataset.adv){const o=API.advance(+t.dataset.adv);if(o.wa)chat.push({from:"bot",text:o.status===2?"🍽️ Order #"+o.id+" is ready! Please collect it from the counter.":"Order #"+o.id+" is now: "+STATUS[o.status]});if(o.id===me)notify(`Order #${o.id} is now: ${STATUS[o.status]}.`);else toast(`Order #${o.id} → ${STATUS[o.status]}`);render()}
-  else if(t.dataset.rs){DB.stock[t.dataset.rs]+=10;toast("Stock updated");render()}
-});
-bell();render();
+function staff(){const revenue=orders.reduce((s,o)=>s+(o.total||0),0);return `<div class="stats"><div class="panel"><span class="note">Active</span><strong>${orders.filter(o=>o.status<3).length}</strong></div><div class="panel"><span class="note">Orders</span><strong>${orders.length}</strong></div><div class="panel"><span class="note">Revenue</span><strong>${inr(revenue)}</strong></div></div><h2>Order board</h2><div class="board">${STATUS.map((s,i)=>`<section class="col"><h3>${s}</h3>${orders.filter(o=>o.status===i).map(o=>`<article class="ticket"><strong>#${o.id} ${esc(o.name)}</strong><div>${o.items.map(x=>`${x.q} × ${esc(x.n)}`).join(", ")}</div><div class="note">${esc(o.customer?.gender||"")} · ${esc(o.customer?.hostel||"")} · Room ${esc(o.customer?.room||"")}</div>${i<3?`<button class="btn" data-adv="${o.id}">Mark ${STATUS[i+1]}</button>`:`<button class="btn wa" data-wa="${o.id}">WhatsApp receipt</button>`}</article>`).join("")}</section>`).join("")}</div>`}
+function bot(){return `<div style="max-width:500px;margin:auto"><div class="panel" style="padding:0"><div style="background:#075e54;padding:12px;font-weight:700">Campus Bites Bot</div><div id="chat" style="height:380px;overflow:auto;padding:12px;display:grid;gap:8px">${chat.map(m=>`<div style="justify-self:${m.from=== "me"?"end":"start"};max-width:85%;background:${m.from=== "me"?"#005c4b":"#202c33"};padding:9px 12px;border-radius:12px">${esc(m.text)}</div>`).join("")}</div><div class="row" style="padding:8px"><input id="bi" placeholder="Type menu or place an order"><button class="btn wa" id="bs">Send</button></div></div></div>`}
+function render(){ $("#t-s").setAttribute("aria-selected",view=== "s");$("#t-f").setAttribute("aria-selected",view=== "f");$("#t-w").setAttribute("aria-selected",view=== "w");$("#app").innerHTML=view=== "s"?student():view=== "f"?staff():bot();const c=$("#chat");if(c)c.scrollTop=c.scrollHeight }
+function saveCustomer(){customer.name=$("#custName")?.value.trim()||"";customer.gender=$("#custGender")?.value||"";customer.hostel=$("#custHostel")?.value.trim()||"";customer.room=$("#custRoom")?.value.trim()||""}
+document.addEventListener("input",e=>{if(["custName","custHostel","custRoom"].includes(e.target.id)){saveCustomer()}});document.addEventListener("change",e=>{if(e.target.id=== "custGender")saveCustomer()});
+document.addEventListener("click",async e=>{const t=e.target.closest("button");if(!t)return;try{if(["t-s","t-f","t-w"].includes(t.id)){view=t.id.slice(2);render();return}if(t.id=== "bell"){$("#drawer").hidden=!$("#drawer").hidden;return}if(t.dataset.add){const id=t.dataset.add;if((cart[id]||0)<(stock[id]||0))cart[id]=(cart[id]||0)+1;render();return}if(t.dataset.dec){const id=t.dataset.dec;cart[id]=(cart[id]||0)-1;if(cart[id]<=0)delete cart[id];render();return}if(t.id=== "place"){saveCustomer();if(!customer.name||!customer.gender||!customer.hostel||!customer.room){toast("Please fill name, gender, hostel and room number");return}const items=M.filter(m=>cart[m.id]).map(m=>({id:m.id,q:cart[m.id]}));if(!items.length){toast("Add at least one item");return}const d=await request("/api/orders",{method:"POST",body:JSON.stringify({name:customer.name,items,source:"web",customer})});orders=d.orders||orders;stock=d.stock||stock;me=d.order.id;cart={};notify(`Order #${d.order.id} placed. Total ${inr(d.order.total)}.`);window.open(whatsappLink(d.order),"_blank","noopener");render();return}if(t.dataset.adv){const d=await request(`/api/orders/${t.dataset.adv}/advance`,{method:"PATCH"});orders=d.orders||orders;notify(`Order #${d.order.id} is ${STATUS[d.order.status]}`);render();return}if(t.dataset.wa){const o=orders.find(x=>x.id===+t.dataset.wa);if(o)window.open(whatsappLink(o),"_blank","noopener");return}if(t.id=== "bs"){const i=$("#bi"),text=i.value.trim();if(!text)return;chat.push({from:"me",text});chat.push({from:"bot",text:"Send your order from the Student tab for a complete receipt."});i.value="";render()}}catch(err){toast(err.message)}});
+(async()=>{try{await load();render()}catch(err){$("#app").innerHTML=`<div class="panel"><h2>Backend connection required</h2><p>${esc(err.message)}</p></div>`}})();
 </script>
 </body>
 </html>
